@@ -1,7 +1,10 @@
 # DesktopPony
 
-exe文件百度云盘链接：
-链接：https://pan.baidu.com/s/1hI8eE_eDXyAa4As24mPXbA 
-提取码：8y68
+exe文件百度云盘链接:(v1.0.0)
+链接：https://pan.baidu.com/s/1G0fQ3JbZfePl2dTOBDcfMg 
+提取码：o7qa
 
-cfg.py内为可自定义的参数
+操作教程详见README.pdf
+
+exe程序目前仅支持分辨率1920x1080的64位Windows操作系统
+python程序请确保拥有以下库：os、sys、random、PyQt5、cv2 (opencv2)、numpy、PIL、win32gui (pywin32)
