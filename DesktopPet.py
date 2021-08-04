@@ -250,7 +250,7 @@ class DesktopPet(QWidget):
 			else:
 				self.actionPic = self.flipHorizontally(self.pix['standBoop'][self.picNum])
 			self.picNum += 1
-			if self.picNum > 18:
+			if self.picNum > 17:
 				self.running_action = ''
 				self.picNum = 0
 				self.is_running_action = False
