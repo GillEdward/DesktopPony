@@ -25,7 +25,7 @@ class DesktopPet(QWidget):
 		self.setWindowFlags(Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint|Qt.SubWindow)
 		self.setAutoFillBackground(False)
 		self.setAttribute(Qt.WA_TranslucentBackground, True)
-		self.repaint()
+		self.update()
 
 		self.is_follow_mouse = False	# 是否跟随鼠标
 		self.mouse_drag_pos = self.pos()	# 防止宠物拖拽时移动僵硬
@@ -39,13 +39,6 @@ class DesktopPet(QWidget):
 		self.is_running_action = False
 		self.direction = 0b0000	# 二进制键值按WASD排列, 如0b1000代表按下W, 0b1100代表按下W和A
 		self.mirrored = False
-
-		# 资源图片全为 500*500
-		self.minX = 165	# 所有姿态中最小x坐标
-		self.minY = 139	# 所有姿态中最小y坐标
-		self.maxX = 359	# 所有姿态中最大x坐标
-		self.maxY = 366	# 一般姿势的最大y坐标（也就是图片有效部分的最下方，是与地面接触的部分）
-		self.maxY_ = 404	# 飞行姿势的最大y坐标
 
 		# 加载资源
 		self.picNum = 0
@@ -132,13 +125,13 @@ class DesktopPet(QWidget):
 			temp.append(QPixmap(os.path.join('./img/lie', str(i) +'.png')))
 		self.pix.update({'getUp' : temp})
 
-		temp = []
-		for i in range(0, 10):
-			temp.append(QPixmap(os.path.join('./img/fly', str(i) +'.png')))
-		self.pix.update({'fly' : temp})
+#		temp = []
+#		for i in range(0, 10):
+#			temp.append(QPixmap(os.path.join('./img/fly', str(i) +'.png')))
+#		self.pix.update({'fly' : temp})
 
 		temp = []
-		for i in range(0, 19):
+		for i in range(0, 18):
 			temp.append(QPixmap(os.path.join('./img/boop', str(i) +'.png')))
 		self.pix.update({'standBoop' : temp})
 
@@ -169,25 +162,25 @@ class DesktopPet(QWidget):
 
 		if self.direction & 0b0100:	# Left
 			self.posX -= cfg.STEP_LEN	# 步长
-			if self.posX + self.minX < 0:	# 空气墙
+			if self.posX + self.bubble.textPix['trot'][self.picNum][0] < 0:	# 空气墙
 				self.posX += cfg.STEP_LEN
 			self.move(self.posX, self.posY)
 
 		if self.direction & 0b0001:	# Right
 			self.posX += cfg.STEP_LEN
-			if self.posX + self.maxX > screen.width():
+			if self.posX + self.bubble.textPix['trot'][self.picNum][2] > screen.width():
 				self.posX -= cfg.STEP_LEN
 			self.move(self.posX, self.posY)
 
 		if self.direction & 0b1000:	# Up
 			self.posY -= cfg.STEP_LEN
-			if self.posY + self.minY < 0:
+			if self.posY + self.bubble.textPix['trot'][self.picNum][1] < 0:
 				self.posY += cfg.STEP_LEN
 			self.move(self.posX, self.posY)
 
 		if self.direction & 0b0010:	# Down
 			self.posY += cfg.STEP_LEN
-			if self.posY + self.maxY > screen.height():
+			if self.posY + self.bubble.textPix['trot'][self.picNum][3] > screen.height():
 				self.posY -= cfg.STEP_LEN
 			self.move(self.posX, self.posY)
 
@@ -475,9 +468,10 @@ class BubbleBox(QWidget):
 		self.setWindowFlags(Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint|Qt.SubWindow)
 		self.setAutoFillBackground(False)
 		self.setAttribute(Qt.WA_TranslucentBackground, True)
-		self.repaint()
+		self.update()
 
-		self.bubbleOffset = [20, -60]	# 对话框相对于当前姿势有效图片左上角x, y轴的偏移像素
+		self.BUBBLE_OFFSET = [20, -60]	# 对话框相对于当前姿势有效图片左上角x, y轴的偏移像素
+		self.IMG_WIDTH = 80*4
 
 		self.textPix = {}
 
@@ -506,19 +500,19 @@ class BubbleBox(QWidget):
 
 		if self.running_action == '':
 			if self.actualAction == 0:
-				x = self.textPix[''][0][0] + self.bubbleOffset[0]
-				y = self.textPix[''][0][1] + self.bubbleOffset[1]
+				x = self.textPix[''][0][0] + self.BUBBLE_OFFSET[0]
+				y = self.textPix[''][0][1] + self.BUBBLE_OFFSET[1]
 			elif self.actualAction == -1:
-				x = self.textPix['lieDown'][0][0] + self.bubbleOffset[0]
-				y = self.textPix['lieDown'][0][1] + self.bubbleOffset[1]
+				x = self.textPix['lieDown'][0][0] + self.BUBBLE_OFFSET[0]
+				y = self.textPix['lieDown'][0][1] + self.BUBBLE_OFFSET[1]
 			elif self.actualAction == -2:
-				x = self.textPix['getUp'][0][0] + self.bubbleOffset[0]
-				y = self.textPix['getUp'][0][1] + self.bubbleOffset[1]
+				x = self.textPix['getUp'][0][0] + self.BUBBLE_OFFSET[0]
+				y = self.textPix['getUp'][0][1] + self.BUBBLE_OFFSET[1]
 		else:
-			x = self.textPix[self.running_action][self.picNum][0] + self.bubbleOffset[0]
-			y = self.textPix[self.running_action][self.picNum][1] + self.bubbleOffset[1]
+			x = self.textPix[self.running_action][self.picNum][0] + self.BUBBLE_OFFSET[0]
+			y = self.textPix[self.running_action][self.picNum][1] + self.BUBBLE_OFFSET[1]
 		if self.mirrored:
-			x = 500 - (x + self.emojiPic.width())
+			x = self.IMG_WIDTH - (x + self.emojiPic.width())
 		x += self.posX
 		y += self.posY
 
@@ -552,13 +546,13 @@ class BubbleBox(QWidget):
 			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
 		self.textPix.update({'getUp' : temp})
 
-		temp = []
-		for i in range(0, 10):
-			temp.append(self.loadText(os.path.join('./img/fly', str(i) +'.txt')))
-		self.textPix.update({'fly' : temp})
+#		temp = []
+#		for i in range(0, 10):
+#			temp.append(self.loadText(os.path.join('./img/fly', str(i) +'.txt')))
+#		self.textPix.update({'fly' : temp})
 
 		temp = []
-		for i in range(0, 19):
+		for i in range(0, 18):
 			temp.append(self.loadText(os.path.join('./img/boop', str(i) +'.txt')))
 		self.textPix.update({'standBoop' : temp})
 
@@ -596,7 +590,7 @@ class DialogBox(QWidget):
 		self.setWindowFlags(Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint|Qt.SubWindow)
 		self.setAutoFillBackground(False)
 		self.setAttribute(Qt.WA_TranslucentBackground, True)
-		self.repaint()
+		self.update()
 
 		self.textBox = QPixmap('./img/parchment/Dialog.png')
 		self.textRaw = s
