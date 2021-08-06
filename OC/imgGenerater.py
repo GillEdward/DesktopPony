@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
 	for filename in path_list:
 		if os.path.splitext(filename)[1] == '.png' and filename.find('-') != -1:	# 截去OC名字, 因为OpenCV2不认识中文qwq
-			os.rename(os.path.join(path + '/' + filename), os.path.join(path + '/' + filename[filename.find('-') + 1:]))
+			shutil.move(os.path.join(path + '/' + filename), os.path.join(path + '/' + filename[filename.find('-') + 1:]))
 
 	for filename in path_list:
 		if os.path.splitext(filename)[1] == '.png':  # 打开.png文件
