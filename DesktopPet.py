@@ -10,6 +10,7 @@ import numpy
 from PIL import Image, ImageDraw, ImageFont, ImageQt
 import win32gui	# 仅限Win
 import cfg
+import math
 
 # pyinstaller -F -w -i favIcon256.ico DesktopPet.py --exclude-module ./cfg.py
 
@@ -17,6 +18,7 @@ import cfg
 class DesktopPet(QWidget):
 	# 定义信号
 	bubbleUpdate = pyqtSignal(QPixmap, int, int, str, int, bool, int)
+	menuBubbleUpdate = pyqtSignal(int, int, str, int, int)
 
 	def __init__(self, parent=None, **kwargs):
 		super(DesktopPet, self).__init__(parent)
@@ -40,6 +42,34 @@ class DesktopPet(QWidget):
 		self.direction = 0b0000	# 二进制键值按WASD排列, 如0b1000代表按下W, 0b1100代表按下W和A
 		self.mirrored = False
 
+		# 右键扇形菜单
+		self.menuBubble = []
+		self.menu = {}
+		self.menu.update({'备忘录文件夹' : menuBubble(menuLayout('备忘录文件夹', 150, 90), QPixmap('./img/buttom/备忘录文件夹.png'), 'functionButton')})
+		self.menu['备忘录文件夹'].functionActive.connect(self.openMemoFolder)
+		self.menu.update({'查看当前句柄' : menuBubble(menuLayout('查看当前句柄', 150, 120), QPixmap('./img/buttom/查看当前句柄.png'), 'functionButton')})
+		self.menu['查看当前句柄'].functionActive.connect(self.showCurrentHandles)
+		self.menu.update({'抽取随机任务' : menuBubble(menuLayout('抽取随机任务', 150, 150), QPixmap('./img/buttom/抽取随机任务.png'), 'functionButton')})
+		self.menu['抽取随机任务'].functionActive.connect(self.randomTODOList)
+		self.menu.update({'设置' : menuBubble(menuLayout('设置', 150, 180), QPixmap('./img/buttom/设置.png'), 'menuLayer')})
+		self.menu['设置'].info.son.update({'运动类' : menuBubble(menuLayout('运动类', 250, 150), QPixmap('./img/buttom/运动类.png'), 'menuLayer')})
+		self.menu['设置'].info.son['运动类'].info.son.update({'步长' : menuBubble(menuLayout('步长', 350, 150), QPixmap('./img/buttom/步长.png'), 'functionButton')})
+		self.menu['设置'].info.son.update({'文本类' : menuBubble(menuLayout('文本类', 250, 180), QPixmap('./img/buttom/文本类.png'), 'menuLayer')})
+		self.menu['设置'].info.son['文本类'].info.son.update({'字体大小' : menuBubble(menuLayout('字体大小', 350, 120), QPixmap('./img/buttom/字体大小.png'), 'functionButton')})
+		self.menu['设置'].info.son['文本类'].info.son.update({'字体颜色' : menuBubble(menuLayout('字体颜色', 350, 150), QPixmap('./img/buttom/字体颜色.png'), 'functionButton')})
+		self.menu['设置'].info.son['文本类'].info.son.update({'行间距' : menuBubble(menuLayout('行间距', 350, 180), QPixmap('./img/buttom/行间距.png'), 'functionButton')})
+		self.menu['设置'].info.son['文本类'].info.son.update({'初始偏移量' : menuBubble(menuLayout('初始偏移量', 350, 210), QPixmap('./img/buttom/初始偏移量.png'), 'functionButton')})
+		self.menu['设置'].info.son['文本类'].info.son.update({'相当垂直高度' : menuBubble(menuLayout('相当垂直高度', 350, 240), QPixmap('./img/buttom/相当垂直高度.png'), 'functionButton')})
+		self.menu['设置'].info.son.update({'绘制类' : menuBubble(menuLayout('绘制类', 250, 210), QPixmap('./img/buttom/绘制类.png'), 'menuLayer')})
+		self.menu['设置'].info.son['绘制类'].info.son.update({'FPS' : menuBubble(menuLayout('FPS', 350, 210), QPixmap('./img/buttom/FPS.png'), 'functionButton')})
+		self.menu.update({'保存并退出' : menuBubble(menuLayout('保存并退出', 150, 210), QPixmap('./img/buttom/保存并退出.png'), 'functionButton')})
+		self.menu.update({'不保存并退出' : menuBubble(menuLayout('保存并退出', 150, 240), QPixmap('./img/buttom/不保存并退出.png'), 'functionButton')})
+		self.menu.update({'关闭' : menuBubble(menuLayout('关闭', 150, 270), QPixmap('./img/buttom/关闭.png'), 'functionButton')})
+		self.menu['关闭'].functionActive.connect(self.quit)
+
+		self.traverseMenuToConnect_UpdateSingal(self.menu)	# 连接信号槽
+		self.traverseMenuToConnect_CloseSingal(self.menu)	# 连接信号槽
+
 		# 加载资源
 		self.picNum = 0
 		self.pix = {}
@@ -50,7 +80,7 @@ class DesktopPet(QWidget):
 		self.showBubble = False
 
 		# Win句柄
-		self.hwnd_title = {}	# 仅限Win
+		self.hwnd_title = {}	# 仅限Wineee
 
 		# 子窗口
 		self.bubble = BubbleBox()
@@ -59,18 +89,19 @@ class DesktopPet(QWidget):
 
 		# 信号槽
 		self.bubbleUpdate.connect(self.bubble.getData)
-		self.bubble.showParchment_.connect(self.showParchment)
+		self.bubble.showParchment.connect(self.showParchment)
 		self.tray.trayQuit.connect(self.quit)
 
 		# 状态机循环
 		self.timer = QTimer() # 初始化一个定时器
 		self.timer.start(int(1000/30))	# 设置时间间隔并启动定时器
-		self.timer.timeout.connect(self.actionCycle)   # 定时器结束，触发showTime方法
+		self.timer.timeout.connect(self.actionCycle)   # 定时器结束，actionCycle()
 
 		self.animationTimer = QTimer()
-		self.animationTimer.start(int(1000/60)) # 动画更新速度同步屏幕帧率
+		self.animationTimer.start(int(1000/cfg.FPS)) # 动画更新速度同步屏幕帧率
 		self.animationTimer.timeout.connect(self.update)
 		self.animationTimer.timeout.connect(self.bubble.update)
+		self.animationTimer.timeout.connect(self.menuBubbleUpdate_)
 
 #		self.handleCheckTimer = QTimer()
 #		self.handleCheckTimer.start(int(1000/10))
@@ -86,10 +117,12 @@ class DesktopPet(QWidget):
 		self.move(int(x), int(y)) # 调用move移动到指定位置
 
 	def paintEvent(self, event):	# 绘制窗口
-		if not self.showBubble:
-			self.emojiPic = self.pix['emoji'][0]
+		if not self.showBubble:	# 如果不显示窗口, 则将窗口图案设为空图片
+			self.emojiPic = self.pix['emoji'][0]	# pix['emoji'][0]为全透明图片
 		self.bubbleUpdate.emit(self.emojiPic, self.posX, self.posY, self.running_action, self.actualAction, self.mirrored, self.picNum)
 		self.bubble.show()
+
+		self.menuBubbleUpdate.emit(self.posX, self.posY, self.running_action, self.actualAction, self.picNum)
 
 		paint = QPainter(self)
 		self.resize(self.actionPic.size())	# 获取图片大小
@@ -312,21 +345,23 @@ class DesktopPet(QWidget):
 
 
 	def contextMenuEvent(self, event):  # 右键菜单
-		menu = QMenu(self)
+#		menu = QMenu(self)
 
-#		memoAction = menu.addAction('&记事本')
-#		memoAction.triggered.connect(self.showParchment)
+#		openFolderAction = menu.addAction('&备忘录文件夹')
+#		openFolderAction.triggered.connect(self.openMemoFolder)
 
-		openFolderAction = menu.addAction('&备忘录文件夹')
-		openFolderAction.triggered.connect(self.openMemoFolder)
+#		checkHandlesAction = menu.addAction('&查看当前句柄')
+#		checkHandlesAction.triggered.connect(self.showCurrentHandles)
 
-		checkHandlesAction = menu.addAction('&查看当前句柄')
-		checkHandlesAction.triggered.connect(self.showCurrentHandles)
+#		checkHandlesAction = menu.addAction('&抽取随机任务')
+#		checkHandlesAction.triggered.connect(self.randomTODOList)
 
-		quitAction = menu.addAction('&关闭')
-		quitAction.triggered.connect(self.quit)
+#		quitAction = menu.addAction('&退出')
+#		quitAction.triggered.connect(self.quit)
 
-		menu.exec_(event.globalPos())
+#		menu.exec_(event.globalPos())
+		for i in self.menu:
+			self.menu[i].info.showBubble = True
 
 	def keyPressEvent(self, event):	# 按下键盘检测
 		if event.key() == Qt.Key_X and not self.is_running_action:	# 保证动作不会冲突
@@ -457,10 +492,80 @@ class DesktopPet(QWidget):
 	def get_all_hwnd(self, hwnd, mouse):	# 仅限Win
 		if win32gui.IsWindow(hwnd) and win32gui.IsWindowEnabled(hwnd) and win32gui.IsWindowVisible(hwnd):
 			self.hwnd_title.update({hwnd : win32gui.GetWindowText(hwnd)})
+
+	def randomTODOList(self):
+		listContent = []
+		listNum = []
+		outText = []
+
+		f = open('./memo/randomTODO.txt', encoding = 'utf-8')
+		for line in f:
+			if '[' in line:
+				listContent.append(line[:line.find('[')])
+				listNum.append(int(line[line.find('[') + 1 : line.find(']')]))
+		f.close()
+
+		num = 0
+		for i in listNum:
+			num += i
+		num = random.randint(0, num)
+
+		result = -1
+		for i in range(0, len(listNum)):
+			num -= listNum[i]
+			if num <= 0 and listNum[i] > 0:
+				result = i
+				listNum[i] -= 1
+				break
+
+		if result != -1:
+			out = open('./memo/randomTODO.txt', 'w', encoding = 'utf-8')
+			for i in range(0, len(listNum)):
+				out.write(listContent[i] + '[' + str(listNum[i]) + ']\n')
+			out.close()
+
+			resultContent = listContent[result]
+			outText.append(resultContent)
+		else:
+			outText.append('无可抽取项')
+
+		self.parchment = DialogBox(outText)
+		self.showParchment()
+
+	def traverseMenu(self, menu):
+		for i in menu:
+			if menu[i].info.showBubble:
+				self.menuBubble.append(menu[i])
+
+			if menu[i].info.son != {}:
+				self.traverseMenu(menu[i].info.son)
+
+	def traverseMenuToConnect_UpdateSingal(self, menu):
+		for i in menu:	# 连接位置更新函数
+			self.menuBubbleUpdate.connect(menu[i].getData)
+
+			if menu[i].info.son != {}:	# 子类递归
+				self.traverseMenuToConnect_UpdateSingal(menu[i].info.son)
+
+	def traverseMenuToConnect_CloseSingal(self, menu):
+		for i in menu:	# 连接同级菜单的关闭函数
+			for j in menu:
+				if i != j:
+					menu[i].closeSubclass.connect(menu[j].menuClose)
+
+			if menu[i].info.son != {}:	# 子类递归
+				self.traverseMenuToConnect_CloseSingal(menu[i].info.son)
+
+	def menuBubbleUpdate_(self):
+		self.menuBubble = []
+		self.traverseMenu(self.menu)
+		for bubble in self.menuBubble:
+			bubble.update()
+			bubble.show()
 	''''''
 
 class BubbleBox(QWidget):
-	showParchment_ = pyqtSignal()
+	showParchment = pyqtSignal()
 
 	def __init__(self, parent=None, **kwargs):
 		super(BubbleBox, self).__init__(parent)
@@ -474,6 +579,7 @@ class BubbleBox(QWidget):
 		self.IMG_WIDTH = 80*4
 
 		self.textPix = {}
+		self.loadPos()
 
 		# 从信号槽读取
 		self.emojiPic = None
@@ -483,8 +589,6 @@ class BubbleBox(QWidget):
 		self.actualAction = 0
 		self.mirrored = False
 		self.picNum = 0
-
-		self.loadPos()
 
 	def paintEvent(self, event):	# 绘制窗口
 		self.moveToPos()
@@ -516,7 +620,7 @@ class BubbleBox(QWidget):
 		x += self.posX
 		y += self.posY
 
-		self.move(x, y)	# 调用move移动到指定位置
+		self.move(int(x), int(y))	# 调用move移动到指定位置
 
 	def loadPos(self):	# 载入相对位移数据
 		self.textPix.update({'' : [self.loadText(os.path.join('./img/stand', str(0) + '.txt'))]})
@@ -568,7 +672,7 @@ class BubbleBox(QWidget):
 	'''事件处理'''
 	def mousePressEvent(self, event):		# 鼠标左键按下时, 打开对话框
 		if event.button() == Qt.LeftButton:
-			self.showParchment_.emit()
+			self.showParchment.emit()
 			event.accept()
 	''''''
 
@@ -729,11 +833,150 @@ class TrayIcon(QSystemTrayIcon):
 	def openMemoFolder(self):	# 打开对应文件夹
 		os.startfile(os.path.abspath('./memo'))
 
-class window(QWidget):
-	def __init__(self, parent=None):
-		super(window, self).__init__(parent)
-		ti = TrayIcon(self)
-		ti.show()
+class menuBubble(QWidget):
+	# 定义信号
+	functionActive = pyqtSignal()	# 触发按钮功能(连接到实现功能的函数)
+	closeSubclass = pyqtSignal()	# 关闭同级菜单的子菜单
+
+	def __init__(self, info, icon, function, parent=None, **kwargs):
+		super(menuBubble, self).__init__(parent)
+		# 初始化
+		self.setWindowFlags(Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint|Qt.SubWindow)
+		self.setAutoFillBackground(False)
+		self.setAttribute(Qt.WA_TranslucentBackground, True)
+		self.update()
+
+		self.info = info
+		self.icon = icon
+		self.function = function
+
+		self.textPix = {}
+		self.loadPos()
+
+		# 从信号槽读取
+		self.posX = 0	# 主窗口坐标
+		self.posY = 0	# 主窗口坐标
+		self.running_action = ''
+		self.actualAction = 0
+		self.mirrored = False
+		self.picNum = 0
+
+	def paintEvent(self, event):	# 绘制窗口
+		if self.info.showBubble:
+			self.moveToPos()
+		
+			paint = QPainter(self)
+			self.resize(self.icon.size())	# 获取图片大小
+			self.setMask(self.icon.mask())   # 设置蒙版
+			paint.drawPixmap(0, 0, self.icon.width(), self.icon.height(), self.icon)
+
+	def moveToPos(self):
+		x = 0
+		y = 0
+
+		if self.running_action == '':	# 对齐中心
+			if self.actualAction == 0:
+				x = (self.textPix[''][0][0] + self.textPix[''][0][2]) / 2
+				y = (self.textPix[''][0][1] + self.textPix[''][0][3]) / 2
+			elif self.actualAction == -1:
+				x = (self.textPix['lieDown'][0][0] + self.textPix['lieDown'][0][2]) / 2
+				y = (self.textPix['lieDown'][0][1] + self.textPix['lieDown'][0][3]) / 2
+			elif self.actualAction == -2:
+				x = (self.textPix['getUp'][0][0] + self.textPix['getUp'][0][2]) / 2
+				y = (self.textPix['getUp'][0][1] + self.textPix['getUp'][0][3]) / 2
+		else:
+			x = (self.textPix[self.running_action][self.picNum][0] + self.textPix[self.running_action][self.picNum][2]) / 2
+			y = (self.textPix[self.running_action][self.picNum][1] + self.textPix[self.running_action][self.picNum][3]) / 2
+		x -= self.icon.width() / 2
+		y -= self.icon.height() / 2
+		x += self.posX
+		y += self.posY
+
+		x += self.info.r * math.cos(math.radians(-self.info.angle))	# 偏移量计算, 因为math的度数居然是顺时针旋转的, 所以加上负号变为逆时针旋转
+		y += self.info.r * math.sin(math.radians(-self.info.angle))
+
+		self.move(int(x), int(y))	# 调用move移动到指定位置
+
+	def loadPos(self):	# 载入相对位移数据
+		self.textPix.update({'' : [self.loadText(os.path.join('./img/stand', str(0) + '.txt'))]})
+
+		temp = []
+		for i in range(0, 16):
+			temp.append(self.loadText(os.path.join('./img/trot', str(i) + '.txt')))
+		self.textPix.update({'trot' : temp})
+
+		temp = []
+		for i in range(0, 9):
+			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
+		self.textPix.update({'sitDown' : temp})
+
+		temp = []
+		for i in range(9, 16):
+			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
+		self.textPix.update({'standUp' : temp})
+
+		temp = []
+		for i in range(0, 7):
+			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
+		self.textPix.update({'lieDown' : temp})
+
+		temp = []
+		for i in range(7, 13):
+			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
+		self.textPix.update({'getUp' : temp})
+
+#		temp = []
+#		for i in range(0, 10):
+#			temp.append(self.loadText(os.path.join('./img/fly', str(i) +'.txt')))
+#		self.textPix.update({'fly' : temp})
+
+		temp = []
+		for i in range(0, 18):
+			temp.append(self.loadText(os.path.join('./img/boop', str(i) +'.txt')))
+		self.textPix.update({'standBoop' : temp})
+
+	def loadText(self, path):
+		temp = []
+
+		f = open(path, encoding = 'utf-8')
+		for line in f:
+			temp.append(int(line))
+
+		return temp
+
+	'''事件处理'''
+	def mousePressEvent(self, event):		# 鼠标左键按下时, 打开对话框
+		if event.button() == Qt.LeftButton:
+			if self.function == 'menuLayer':
+				for i in self.info.son:
+					self.info.son[i].info.showBubble = True
+			elif self.function == 'functionButton':
+				self.functionActive.emit()
+		self.closeSubclass.emit()
+	''''''
+
+	'''信号处理'''
+	def getData(self, posX, posY, running_action, actualAction, picNum):
+		self.posX = posX	# 主窗口坐标
+		self.posY = posY	# 主窗口坐标
+		self.running_action = running_action
+		self.actualAction = actualAction
+		self.picNum = picNum
+
+	def menuClose(self):	# 关闭子菜单
+		self.update()
+		for i in self.info.son:
+			self.info.son[i].info.showBubble = False
+			self.info.son[i].menuClose()
+	''''''
+
+class menuLayout():
+	def __init__(self, name, r, angle):
+		self.name = name
+		self.r = r
+		self.angle = angle
+		self.son = {}
+		self.showBubble = False
 
 '''run'''
 if __name__ == '__main__':
