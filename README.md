@@ -1,7 +1,6 @@
-# DesktopPony v1.0.1-beta
+# DesktopPony v1.1.0
 
-<<<<<<< HEAD
--基于PT素材的开源桌宠，目前exe版仅支持1980x1080的64位windows系统，Python版记得安装相应的库
+基于PT素材的开源桌宠，目前exe版仅支持1980x1080的64位windows系统，Python版记得安装相应的库
 os
 sys
 random
@@ -12,7 +11,8 @@ PIL
 win32gui	# 仅限Win
 shutil
 
--目前只有一个实用功能：触发试备忘录(一开始写桌宠就是为了这么一个功能x)(详见文件内说明)
+-触发试备忘录
+-简易导入自定义OC
 
 -下次更新会加入更多分辨率选项和一些新功能
 
