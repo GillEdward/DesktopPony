@@ -1,4 +1,7 @@
 DesktopPet.exe
 OC/imgGenerater.exe
+OC/__pycache__
+OC/build
+OC/dist
 压缩包
 __pycache__
