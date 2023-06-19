@@ -1,9 +1,21 @@
 bubbleBox.py	头顶图标
+
 bubbleDialogBox.py	小马头顶的悬浮窗
 bubbleDialogBoxForLiveSprite.py	小电视的悬浮窗
+
 bubbleDialogForPony.py	小马头顶的悬浮窗(用文件读写而不是信号槽)
+
 dialogBox.py	屏幕下方的悬浮窗
+
+--->模块化对话框
+
+------
 imgConvert.py	图像转换(好像是抄的)
 menuBubble.py	右键菜单
 menuLayout.py	右键菜单的数据结构
 trayIcon.py	系统托盘
+
+------
+
+UML
+Python面向对象和类、泛函

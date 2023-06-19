@@ -15,6 +15,8 @@ from src.trayIcon import *
 
 '''桌面宠物'''
 class DesktopPet(QWidget):
+	'小马桌宠类'
+
 	# 定义信号
 	bubbleUpdate = pyqtSignal(QPixmap, int, int, str, int, bool, int)
 #	bubbleDialogUpdate = pyqtSignal(int, int, str, int, bool, int)	# 已将 信号槽机制 改造为 文件读写, 因为两个窗口会互相抢夺控制, 消息刷新时小马无法正常行动
@@ -49,8 +51,8 @@ class DesktopPet(QWidget):
 		self.menu.update({'备忘录文件夹' : menuBubble(menuLayout('备忘录文件夹', 150, 90), QPixmap('./img/buttom/备忘录文件夹.png'), 'functionButton')})
 		self.menu['备忘录文件夹'].functionActive.connect(self.openMemo)
 
-		self.menu.update({'直播机' : menuBubble(menuLayout('直播机', 150, 180), QPixmap('./img/buttom/直播机.png'), 'functionButton')})
-		self.menu['直播机'].functionActive.connect(self.openLiveDM)
+#		self.menu.update({'直播机' : menuBubble(menuLayout('直播机', 150, 180), QPixmap('./img/buttom/直播机.png'), 'functionButton')})
+#		self.menu['直播机'].functionActive.connect(self.openLiveDM)
 
 		self.menu.update({'关闭' : menuBubble(menuLayout('关闭', 150, 270), QPixmap('./img/buttom/关闭.png'), 'functionButton')})
 		self.menu['关闭'].functionActive.connect(self.closeMenu)
