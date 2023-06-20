@@ -6,12 +6,11 @@ import os
 import sys
 
 import cfg
-from src.bubbleBox import *
-#from src.bubbleDialogBox import *
 from src.menuBubble import *
 from src.menuLayout import *
 from src.trayIcon import *
 
+from src.bubbleBoxex import *
 from src.dialogBoxes import *
 
 '''桌面宠物'''
@@ -19,8 +18,7 @@ class DesktopPet(QWidget):
 	'小马桌宠类'
 
 	# 定义信号
-	bubbleUpdate = pyqtSignal(QPixmap, int, int, str, int, bool, int)
-#	bubbleDialogUpdate = pyqtSignal(int, int, str, int, bool, int)	# 已将 信号槽机制 改造为 文件读写, 因为两个窗口会互相抢夺控制, 消息刷新时小马无法正常行动
+	bubbleUpdate = pyqtSignal(int, int, str, int, bool, int)
 	menuBubbleUpdate = pyqtSignal(int, int, str, int, int)
 
 	def __init__(self, parent=None, **kwargs):
@@ -66,10 +64,9 @@ class DesktopPet(QWidget):
 		self.pix = {}	# 小马素材
 		self.loadImage()	# 加载资源
 		self.actionPic = self.pix['stand']	# 当前动作
-		self.emojiPic = self.pix['emoji'][0]	# 头顶图标
 
 		# 子窗口
-		self.bubble = BubbleBox()
+		self.bubble = BubbleBox(QPixmap('./img/emoji/0.png'))	# 头顶图标
 #		self.bubbleDialog = BubbleDialogBox('')
 		self.parchment = ScreenCenterDialogBox('')
 		self.tray = TrayIcon()
@@ -80,9 +77,8 @@ class DesktopPet(QWidget):
 		self.bubbleDialogText = ''
 
 		# 信号槽
-		self.bubbleUpdate.connect(self.bubble.getData)
+		self.bubbleUpdate.connect(self.bubble.getData)	# 每次创建新对象都要重新连接信号槽, 所以在读取处连接
 		#self.bubbleDialogUpdate.connect(self.bubbleDialog.getData)	# 每次创建新对象都要重新连接信号槽, 所以在读取处连接
-		self.bubble.showParchment.connect(self.showParchment)
 		self.tray.trayQuit.connect(self.quit)
 
 		# 状态机循环
@@ -96,7 +92,7 @@ class DesktopPet(QWidget):
 		self.animationTimer.timeout.connect(self.bubble.update)
 		self.animationTimer.timeout.connect(self.menuBubbleUpdate_)
 
-		self.animationTimer.timeout.connect(self.openBubbleDialogText)	# 读取弹幕文本信息
+		self.animationTimer.timeout.connect(self.watchingDM)	# 读取弹幕文本信息
 #		self.animationTimer.timeout.connect(self.bubbleDialogUpdate_)
 		self.animationTimer.timeout.connect(self.bubbleDialogPosWriteIntoFile)
 
@@ -110,13 +106,8 @@ class DesktopPet(QWidget):
 		self.move(int(x), int(y)) # 调用move移动到指定位置
 
 	def paintEvent(self, event):	# 绘制窗口
-		self.bubbleUpdate.emit(self.emojiPic, self.posX, self.posY, self.running_action, self.actualAction, self.mirrored, self.picNum)
-#		self.bubbleDialogUpdate.emit(self.posX, self.posY, self.running_action, self.actualAction, self.mirrored, self.picNum)
+		self.bubbleUpdate.emit(self.posX, self.posY, self.running_action, self.actualAction, self.mirrored, self.picNum)
 		self.menuBubbleUpdate.emit(self.posX, self.posY, self.running_action, self.actualAction, self.picNum)
-
-		if not self.showBubble:	# 如果不显示窗口, 则将窗口图案设为空图片
-			self.emojiPic = self.pix['emoji'][0]	# pix['emoji'][0]为全透明图片
-		self.bubble.show()	# menu使用计时器更新, bubble使用paintEvent更新, 前者为更先进的解决办法
 
 		paint = QPainter(self)
 		self.resize(self.actionPic.size())	# 获取图片大小
@@ -161,11 +152,6 @@ class DesktopPet(QWidget):
 		for i in range(0, 18):
 			temp.append(QPixmap(os.path.join('./img/boop', str(i) +'.png')))
 		self.pix.update({'standBoop' : temp})
-
-		temp = []
-		for i in range(0, 2):
-			temp.append(QPixmap(os.path.join('./img/emoji', str(i) +'.png')))
-		self.pix.update({'emoji' : temp})
 	''''''
 
 	'''状态机'''
@@ -302,7 +288,6 @@ class DesktopPet(QWidget):
 		self.is_follow_mouse = False
 		self.setCursor(QCursor(Qt.ArrowCursor))
 
-
 	def contextMenuEvent(self, event):  # 右键菜单
 		''' 旧右键菜单
 		menu = QMenu(self)
@@ -398,9 +383,6 @@ class DesktopPet(QWidget):
 		for i in self.menu:
 			self.menu[i].info.showBubble = False
 
-	def showParchment(self):	# 显示对话框
-		self.parchment.show()
-
 	def flipHorizontally(self, pix):	# 水平翻转
 		temp = pix.toImage()
 		temp = temp.mirrored(True, False)	# 水平翻转图像
@@ -416,7 +398,7 @@ class DesktopPet(QWidget):
 		f.close()
 		return temp
 
-	def openBubbleDialogText(self):	# 监控头部气泡, 响应对应关键词
+	def watchingDM(self):	# 监控头部气泡, 响应对应关键词
 		text = open('./headBubble.txt', 'r', encoding = 'utf-8').readline()
 		if text.find('欢迎') != -1:	# 有人进入直播间自动boop	# 目前仅限于standBoop, 因为动作集还没有更新
 			open('./headBubble.txt', 'w', encoding = 'utf-8').write('')
@@ -424,11 +406,10 @@ class DesktopPet(QWidget):
 			self.running_action = 'standBoop'
 			self.standBoopAction()
 
-
 	def openMemo(self):	# 打开备忘录
 		text = self.readText(os.path.join('./memo.txt'))
 		self.parchment = ScreenCenterDialogBox(text)
-		self.showParchment()
+		self.parchment.show()
 
 	def openLiveDM(self):	# 打开直播模块组
 #		os.system('python ./liveFunction.py')	# 不能在桌宠函数内调用sys，需要等待

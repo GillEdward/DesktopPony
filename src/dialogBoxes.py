@@ -53,8 +53,6 @@ class Pony_OverheadDialogBox(OverheadDialogBox):
 		# 调用父类初始化函数
 		OverheadDialogBox.__init__(self, s, textBox_NormalPage_Path, textBox_LastPage_Path)
 
-		
-
 	def getData(self):
 		data = open('./ponyPos.txt', 'r').readlines()
 		if data != []:
