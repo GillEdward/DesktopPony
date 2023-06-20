@@ -4,9 +4,9 @@ import os
 import sys
  
 import cfg
-from src.bubbleDialogBoxForLiveSprite import *
+from src.dialogBoxes import *
 
-'''桌面宠物'''
+'''小电视'''
 class liveSprite(QWidget):
 	# 定义信号
 	bubbleDialogUpdate = pyqtSignal(int, int)
@@ -34,7 +34,7 @@ class liveSprite(QWidget):
 		self.loadImage()
 
 		# 子窗口
-		self.bubbleDialog = BubbleDialogBox('')
+		self.bubbleDialog = TV_OverheadDialogBox('', './img/parchment/DialogBubble.png', './img/parchment/DialogBubble.png')
 
 		# 子窗口判定
 		self.showBubbleDialog = False
@@ -108,7 +108,7 @@ class liveSprite(QWidget):
 		text = self.readText(os.path.join('./liveDM.txt'))
 		if text != self.bubbleDialogText and text != []:
 			self.bubbleDialogText = text
-			self.bubbleDialog = BubbleDialogBox(text)
+			self.bubbleDialog = TV_OverheadDialogBox(text, './img/parchment/DialogBubble.png', './img/parchment/DialogBubble.png')
 			self.showBubbleDialog = True
 			self.bubbleDialogUpdate.connect(self.bubbleDialog.getData)	# 每次创建新对象都要重新连接信号槽
 

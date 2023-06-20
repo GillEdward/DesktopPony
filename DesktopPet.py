@@ -8,10 +8,11 @@ import sys
 import cfg
 from src.bubbleBox import *
 #from src.bubbleDialogBox import *
-from src.dialogBox import *
 from src.menuBubble import *
 from src.menuLayout import *
 from src.trayIcon import *
+
+from src.dialogBoxes import *
 
 '''桌面宠物'''
 class DesktopPet(QWidget):
@@ -60,18 +61,17 @@ class DesktopPet(QWidget):
 		self.traverseMenuToConnect_UpdateSingal(self.menu)	# 连接信号槽
 		self.traverseMenuToConnect_CloseSingal(self.menu)	# 连接信号槽
 
-		# 加载资源
-		self.picNum = 0
-		self.pix = {}
-		self.currentText = ''
-		self.loadImage()
-		self.actionPic = self.pix['stand']
-		self.emojiPic = self.pix['emoji'][0]
+		# 加载小马素材资源
+		self.picNum = 0	# 图片序号 
+		self.pix = {}	# 小马素材
+		self.loadImage()	# 加载资源
+		self.actionPic = self.pix['stand']	# 当前动作
+		self.emojiPic = self.pix['emoji'][0]	# 头顶图标
 
 		# 子窗口
 		self.bubble = BubbleBox()
 #		self.bubbleDialog = BubbleDialogBox('')
-		self.parchment = DialogBox('')
+		self.parchment = ScreenCenterDialogBox('')
 		self.tray = TrayIcon()
 
 		# 子窗口判定
@@ -416,7 +416,7 @@ class DesktopPet(QWidget):
 		f.close()
 		return temp
 
-	def openBubbleDialogText(self):	# 打开对应文件夹
+	def openBubbleDialogText(self):	# 监控头部气泡, 响应对应关键词
 		text = open('./headBubble.txt', 'r', encoding = 'utf-8').readline()
 		if text.find('欢迎') != -1:	# 有人进入直播间自动boop	# 目前仅限于standBoop, 因为动作集还没有更新
 			open('./headBubble.txt', 'w', encoding = 'utf-8').write('')
@@ -425,9 +425,9 @@ class DesktopPet(QWidget):
 			self.standBoopAction()
 
 
-	def openMemo(self):	# 打开对应文件夹
+	def openMemo(self):	# 打开备忘录
 		text = self.readText(os.path.join('./memo.txt'))
-		self.parchment = DialogBox(text)
+		self.parchment = ScreenCenterDialogBox(text)
 		self.showParchment()
 
 	def openLiveDM(self):	# 打开直播模块组
