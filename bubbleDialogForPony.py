@@ -31,7 +31,7 @@ class bubbleDialogForPony():
 		return temp
 
 	def updateBubbleDialogText(self):	# 检测是否有新文本
-		text = self.readText(os.path.join('./headBubble.txt'))
+		text = self.readText(os.path.join('./temp/headBubble.txt'))
 		if text != self.bubbleDialogCurrentText and text != []:
 			self.bubbleDialog = Pony_OverheadDialogBox(text, self.textBox_NormalPage_Path, self.textBox_LastPage_Path)
 			self.bubbleDialogCurrentText = text

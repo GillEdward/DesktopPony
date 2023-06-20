@@ -105,7 +105,7 @@ class liveSprite(QWidget):
 		return temp
 
 	def openBubbleDialogText(self):	# 打开对应文件夹
-		text = self.readText(os.path.join('./liveDM.txt'))
+		text = self.readText(os.path.join('./temp/liveDM.txt'))
 		if text != self.bubbleDialogText and text != []:
 			self.bubbleDialogText = text
 			self.bubbleDialog = TV_OverheadDialogBox(text, './img/parchment/DialogBubble.png', './img/parchment/DialogBubble.png')

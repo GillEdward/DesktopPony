@@ -54,7 +54,7 @@ class Pony_OverheadDialogBox(OverheadDialogBox):
 		OverheadDialogBox.__init__(self, s, textBox_NormalPage_Path, textBox_LastPage_Path)
 
 	def getData(self):
-		data = open('./ponyPos.txt', 'r').readlines()
+		data = open('./temp/ponyPos.txt', 'r').readlines()
 		if data != []:
 			self.posX = int(data[0])
 			self.posY = int(data[1])

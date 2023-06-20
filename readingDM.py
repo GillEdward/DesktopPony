@@ -37,12 +37,12 @@ class MyHandler(blivedm.BaseHandler):
     async def _on_interact(self, client: blivedm.BLiveClient, message: blivedm.InteractMessage):
         print(f'欢迎 {message.uname} 进入直播间!')
         dm = f'欢迎 {message.uname} 进入直播间!'
-        open('headBubble.txt', 'w', encoding = 'utf-8').write(dm)   # 将读取到的弹幕写入头部气泡
+        open('temp/headBubble.txt', 'w', encoding = 'utf-8').write(dm)   # 将读取到的弹幕写入头部气泡
 
     async def _on_danmaku(self, client: blivedm.BLiveClient, message: blivedm.DanmakuMessage):
         print(f'{message.uname}：{message.msg}')
         dm = f'{message.uname}：{message.msg}'
-        open('liveDM.txt', 'w', encoding = 'utf-8').write(dm)   # 将读取到的弹幕写入头部气泡
+        open('temp/liveDM.txt', 'w', encoding = 'utf-8').write(dm)   # 将读取到的弹幕写入头部气泡
 
     #async def _on_gift(self, client: blivedm.BLiveClient, message: blivedm.GiftMessage):
     #    print(f'{message.uname} 赠送{message.gift_name}x{message.num}'

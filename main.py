@@ -3,8 +3,8 @@ import os
 
 #  根据需要填写需要运行的命令
 def clearUp():
-	open('./headBubble.txt', 'w', encoding = 'utf-8').write('')
-	open('./liveDM.txt', 'w', encoding = 'utf-8').write('')
+	open('./temp/headBubble.txt', 'w', encoding = 'utf-8').write('')
+	open('./temp/liveDM.txt', 'w', encoding = 'utf-8').write('')
 
 def readingDM():
     os.system('python ./readingDM.py')

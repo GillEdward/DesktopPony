@@ -399,9 +399,9 @@ class DesktopPet(QWidget):
 		return temp
 
 	def watchingDM(self):	# 监控头部气泡, 响应对应关键词
-		text = open('./headBubble.txt', 'r', encoding = 'utf-8').readline()
+		text = open('./temp/headBubble.txt', 'r', encoding = 'utf-8').readline()
 		if text.find('欢迎') != -1:	# 有人进入直播间自动boop	# 目前仅限于standBoop, 因为动作集还没有更新
-			open('./headBubble.txt', 'w', encoding = 'utf-8').write('')
+			open('./temp/headBubble.txt', 'w', encoding = 'utf-8').write('')
 			self.is_running_action = True
 			self.running_action = 'standBoop'
 			self.standBoopAction()
@@ -446,14 +446,8 @@ class DesktopPet(QWidget):
 			bubble.update()
 			bubble.show()
 
-#	def bubbleDialogUpdate_(self):
-#		self.bubbleDialog.update()
-#		if self.showBubbleDialog:	# 如果无新内容, 则不更新头顶气泡
-#			self.bubbleDialog.show()
-#			self.showBubbleDialog = False
-
 	def bubbleDialogPosWriteIntoFile(self):	# 将小马位置信息写入文件
-		open('./ponyPos.txt', 'w', encoding = 'utf-8').write(
+		open('./temp/ponyPos.txt', 'w', encoding = 'utf-8').write(
 			f'{self.posX}\n{self.posY}\n{self.running_action}\n{self.actualAction}\n{self.mirrored}\n{self.picNum}')
 	''''''
 
