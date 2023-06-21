@@ -28,12 +28,12 @@ class ScreenCenterDialogBox(textToDialogBubble):
 
 ''''''
 
-class OverheadDialogBox(textToDialogBubble, followPonyPos):
+class OverheadDialogBox(textToDialogBubble_WithFadeOut, followPonyPos):
 	'头顶对话框'
 
 	def __init__(self, s, textBox_NormalPage_Path : str, textBox_LastPage_Path : str, parent=None, **kwargs):
 		# 调用父类初始化函数
-		textToDialogBubble.__init__(self, s, textBox_NormalPage_Path, textBox_LastPage_Path)
+		textToDialogBubble_WithFadeOut.__init__(self, s, textBox_NormalPage_Path, textBox_LastPage_Path)
 		followPonyPos.__init__(self)
 
 		self.BUBBLE_OFFSET = [-85, -90]	# 对话框相对于当前姿势有效图片左上角x, y轴的偏移像素
@@ -47,7 +47,7 @@ class OverheadDialogBox(textToDialogBubble, followPonyPos):
 ''''''
 
 class Pony_OverheadDialogBox(OverheadDialogBox):
-	'头顶对话框'
+	'跟踪小马头顶对话框'
 
 	def __init__(self, s, textBox_NormalPage_Path : str, textBox_LastPage_Path : str, parent=None, **kwargs):
 		# 调用父类初始化函数
@@ -66,7 +66,7 @@ class Pony_OverheadDialogBox(OverheadDialogBox):
 ''''''
 
 class TV_OverheadDialogBox(OverheadDialogBox):
-	'头顶对话框'
+	'跟踪小电视头顶对话框'
 
 	def __init__(self, s, textBox_NormalPage_Path : str, textBox_LastPage_Path : str, parent=None, **kwargs):
 		# 调用父类初始化函数

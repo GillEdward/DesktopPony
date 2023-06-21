@@ -82,19 +82,19 @@ class DesktopPet(QWidget):
 		self.tray.trayQuit.connect(self.quit)
 
 		# 状态机循环
-		self.timer = QTimer() # 初始化一个定时器
+		self.timer = QTimer()	# 初始化一个定时器
 		self.timer.start(int(1000/30))	# 设置时间间隔并启动定时器
 		self.timer.timeout.connect(self.actionCycle)   # 定时器结束，actionCycle()
 
 		self.animationTimer = QTimer()
-		self.animationTimer.start(int(1000/cfg.FPS)) # 动画更新速度同步屏幕帧率
+		self.animationTimer.start(int(1000/cfg.FPS))	# 动画更新速度同步屏幕帧率
 		self.animationTimer.timeout.connect(self.update)
 		self.animationTimer.timeout.connect(self.bubble.update)
 		self.animationTimer.timeout.connect(self.menuBubbleUpdate_)
 
 		self.animationTimer.timeout.connect(self.watchingDM)	# 读取弹幕文本信息
 #		self.animationTimer.timeout.connect(self.bubbleDialogUpdate_)
-		self.animationTimer.timeout.connect(self.bubbleDialogPosWriteIntoFile)
+		self.animationTimer.timeout.connect(self.ponyPosWriteIntoFile)
 
 		self.show()
 
@@ -411,10 +411,6 @@ class DesktopPet(QWidget):
 		self.parchment = ScreenCenterDialogBox(text)
 		self.parchment.show()
 
-	def openLiveDM(self):	# 打开直播模块组
-#		os.system('python ./liveFunction.py')	# 不能在桌宠函数内调用sys，需要等待
-		None
-
 	def traverseMenu(self, menu):
 		for i in menu:
 			if menu[i].info.showBubble:
@@ -446,7 +442,7 @@ class DesktopPet(QWidget):
 			bubble.update()
 			bubble.show()
 
-	def bubbleDialogPosWriteIntoFile(self):	# 将小马位置信息写入文件
+	def ponyPosWriteIntoFile(self):	# 将小马位置信息写入文件
 		open('./temp/ponyPos.txt', 'w', encoding = 'utf-8').write(
 			f'{self.posX}\n{self.posY}\n{self.running_action}\n{self.actualAction}\n{self.mirrored}\n{self.picNum}')
 	''''''

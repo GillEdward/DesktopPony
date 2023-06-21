@@ -8,6 +8,7 @@ INITIAL_OFFSET = (12, 12)	# (x, y)文本相当于对话框左上角的初始偏�
 BUTTOM_OFFSET = 240	# 对话框相当于屏幕底的垂直距离(单位:像素)
 
 FPS = 60	# 帧数
+displayTime = 5	# 对话框显示时间(秒)
 
 # 不可自定义
 HORIZONTAL_SPACING = 1	# 文本水平间距(字间距)(单位:像素)

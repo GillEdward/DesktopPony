@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import *
 
 from PIL import Image, ImageDraw, ImageFont, ImageQt
 
+import time
+
 import cfg
 
 class textToDialogBubble(QWidget):
@@ -51,6 +53,7 @@ class textToDialogBubble(QWidget):
 	def paintEvent(self, event):	# 绘制窗口
 		self.paintTextBox()
 
+	'''文本生成'''
 	def oneRowGenerater(self, text, font_size = 24):	# 单行文本图片生成器	# (内容, 字体大小)
 		font = ImageFont.truetype('./img/parchment/font/方正像素12.ttf', font_size)   # 字体路径及文本大小
 		text_width, text_height = font.getsize(text)	# 字体框大小
@@ -104,3 +107,41 @@ class textToDialogBubble(QWidget):
 			self.pageGenerater()
 
 ''''''
+
+class textToDialogBubble_WithFadeOut(textToDialogBubble):
+	'关闭事件淡出效果'
+	def __init__(self, s, textBox_NormalPage_Path : str, textBox_LastPage_Path : str, parent=None, **kwargs):
+		textToDialogBubble.__init__(self, s, textBox_NormalPage_Path, textBox_LastPage_Path)
+
+		self.startTime = time.time()
+		self.fadeOutAnimation = None
+
+		self.timer = QTimer()	# 初始化一个定时器
+		self.timer.start(int(1000/cfg.FPS))	# 设置时间间隔并启动定时器
+		self.timer.timeout.connect(self.checkTimer)
+
+	def closeEvent(self, event):	# 关闭窗口时淡出
+		if self.fadeOutAnimation == None:
+			self.fadeOutAnimation = QPropertyAnimation(self, b"windowOpacity") # 设置动画对象
+			self.fadeOutAnimation.setDuration(1000)	# 设置动画时长(毫秒)
+			self.fadeOutAnimation.setStartValue(1)	# 设置初始属性，1.0为不透明
+			self.fadeOutAnimation.setEndValue(0)	# 设置结束属性，0为完全透明
+			self.fadeOutAnimation.finished.connect(self.close)	# 动画结束时，关闭窗口
+			self.fadeOutAnimation.start()	# 开始动画
+			event.ignore()	# 忽略事件
+
+'''
+	def closeEvent(self, event):	# 意外发现的闪烁效果, 不过这样写窗口是彻底关不掉了
+		self.fadeOutAnimation = QPropertyAnimation(self, b"windowOpacity") # 设置动画对象
+		self.fadeOutAnimation.setDuration(1000)	# 设置动画时长(毫秒)
+		self.fadeOutAnimation.setStartValue(1)	# 设置初始属性，1.0为不透明
+		self.fadeOutAnimation.setEndValue(0)	# 设置结束属性，0为完全透明
+		self.fadeOutAnimation.finished.connect(self.close)	# 动画结束时，关闭窗口
+		self.fadeOutAnimation.start()	# 开始动画
+		event.ignore()	# 忽略事件
+'''
+
+	def checkTimer(self):	# 对话框显示时间
+		if time.time() - self.startTime > cfg.displayTime:
+			self.timer.stop()	# 停止计时器, 防止反复调用
+			self.close()
