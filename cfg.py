@@ -10,5 +10,7 @@ BUTTOM_OFFSET = 240	# 对话框相当于屏幕底的垂直距离(单位:像素)
 FPS = 60	# 帧数
 displayTime = 5	# 对话框显示时间(秒)
 
+liveRoomID = 24924777	# 直播间ID
+
 # 不可自定义
 HORIZONTAL_SPACING = 1	# 文本水平间距(字间距)(单位:像素)
