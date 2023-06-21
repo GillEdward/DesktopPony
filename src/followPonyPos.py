@@ -35,15 +35,20 @@ class ponyPropertyPos():
 			temp.append(self.loadText(os.path.join('./img/ponyAction/lie', str(i) +'.txt')))
 		self.textPix.update({'getUp' : temp})
 
-#		temp = []
-#		for i in range(0, 10):
-#			temp.append(self.loadText(os.path.join('./img/ponyAction/fly', str(i) +'.txt')))
-#		self.textPix.update({'fly' : temp})
-
 		temp = []
 		for i in range(0, 15):
 			temp.append(self.loadText(os.path.join('./img/ponyAction/boop', str(i) +'.txt')))
 		self.textPix.update({'standBoop' : temp})
+
+		temp = []
+		for i in range(0, 17):
+			temp.append(self.loadText(os.path.join('./img/ponyAction/boop-sit', str(i) +'.txt')))
+		self.textPix.update({'sitBoop' : temp})
+
+		temp = []
+		for i in range(0, 15):
+			temp.append(self.loadText(os.path.join('./img/ponyAction/boop-lie', str(i) +'.txt')))
+		self.textPix.update({'lieBoop' : temp})
 
 	def loadText(self, path):
 		temp = []

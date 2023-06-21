@@ -82,7 +82,7 @@ class textToDialogBubble(QWidget):
 				break
 		if needSlice:	# 递归剪切过长的片段
 			self.textSliced.append(s[:counter])
-			self.oneRowSlicer(s[counter:])
+			self.Slicer(s[counter:])
 		else:
 			self.textSliced.append(s)
 

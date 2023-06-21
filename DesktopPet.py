@@ -149,12 +149,12 @@ class DesktopPet(QWidget):
 		self.pix.update({'standBoop' : temp})
 
 		temp = []
-		for i in range(0, 18):
+		for i in range(0, 17):
 			temp.append(QPixmap(os.path.join('./img/ponyAction/boop-sit', str(i) +'.png')))
 		self.pix.update({'sitBoop' : temp})
 
 		temp = []
-		for i in range(0, 16):
+		for i in range(0, 15):
 			temp.append(QPixmap(os.path.join('./img/ponyAction/boop-lie', str(i) +'.png')))
 		self.pix.update({'lieBoop' : temp})
 	''''''
@@ -441,8 +441,15 @@ class DesktopPet(QWidget):
 		if text.find('欢迎') != -1:	# 有人进入直播间自动boop	# 目前仅限于standBoop, 因为动作集还没有更新
 			open('./temp/headBubble.txt', 'w', encoding = 'utf-8').write('')
 			self.is_running_action = True
-			self.running_action = 'standBoop'
-			self.standBoopAction()
+			if self.actualAction == 0:
+				self.running_action = 'standBoop'
+				self.standBoopAction()
+			elif self.actualAction == -1:
+				self.running_action = 'sitBoop'
+				self.sitBoopAction()
+			elif self.actualAction == -2:
+				self.running_action = 'lieBoop'
+				self.lieBoopAction()
 
 	def openMemo(self):	# 打开备忘录
 		text = self.readText(os.path.join('./memo.txt'))

@@ -7,8 +7,8 @@ async def runClient():
     """
     演示监听一个直播间
     """
-    room_id = 24924777
-    #room_id = 768756
+    #room_id = 24924777
+    room_id = 13308358
 
     # 如果SSL验证失败就把ssl设为False，B站真的有过忘续证书的情况
     client = blivedm.BLiveClient(room_id, ssl = True)
