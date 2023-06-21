@@ -1,1 +1,1 @@
-cmd /k "pip install -r requirePackage.txt"
+cmd /k "pip install -r requirements.txt"
