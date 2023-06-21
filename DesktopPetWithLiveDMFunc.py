@@ -7,16 +7,16 @@ def clearUp():
 	open('./temp/liveDM.txt', 'w', encoding = 'utf-8').write('')
 
 def readingDM():
-    os.system('python ./liveFunc/readingDM.py')
+    os.system('python ./readingDM.py')
 
 def liveSprite():
-    os.system('python ./liveFunc/liveSprite.py')
+    os.system('python ./liveSprite.py')
 
 def DesktopPet():
     os.system('python ./DesktopPet.py')
 
 def bubbleDialogForPony():
-    os.system('python ./liveFunc/bubbleDialogForPony.py')
+    os.system('python ./bubbleDialogForPony.py')
 
 if __name__ == '__main__': 
     p0 = multiprocessing.Process(target=clearUp)

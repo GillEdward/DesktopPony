@@ -6,13 +6,16 @@ import os
 
 import math
 
-class menuBubble(QWidget):
+from src.followPonyPos import *
+
+class menuBubble(QWidget, followPonyPos):
 	# 定义信号
 	functionActive = pyqtSignal()	# 触发按钮功能(连接到实现功能的函数)
 	closeSubclass = pyqtSignal()	# 关闭同级菜单的子菜单
 
 	def __init__(self, info, icon, function, parent=None, **kwargs):
 		super(menuBubble, self).__init__(parent)
+
 		# 初始化
 		self.setWindowFlags(Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint|Qt.SubWindow)
 		self.setAutoFillBackground(False)
@@ -22,17 +25,6 @@ class menuBubble(QWidget):
 		self.info = info
 		self.icon = icon
 		self.function = function
-
-		self.textPix = {}
-		self.loadPos()
-
-		# 从信号槽读取
-		self.posX = 0	# 主窗口坐标
-		self.posY = 0	# 主窗口坐标
-		self.running_action = ''
-		self.actualAction = 0
-		self.mirrored = False
-		self.picNum = 0
 
 	def paintEvent(self, event):	# 绘制窗口
 		if self.info.showBubble:
@@ -69,53 +61,6 @@ class menuBubble(QWidget):
 		y += self.info.r * math.sin(math.radians(-self.info.angle))
 
 		self.move(int(x), int(y))	# 调用move移动到指定位置
-
-	def loadPos(self):	# 载入相对位移数据
-		self.textPix.update({'' : [self.loadText(os.path.join('./img/stand', str(0) + '.txt'))]})
-
-		temp = []
-		for i in range(0, 16):
-			temp.append(self.loadText(os.path.join('./img/trot', str(i) + '.txt')))
-		self.textPix.update({'trot' : temp})
-
-		temp = []
-		for i in range(0, 9):
-			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
-		self.textPix.update({'sitDown' : temp})
-
-		temp = []
-		for i in range(9, 16):
-			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
-		self.textPix.update({'standUp' : temp})
-
-		temp = []
-		for i in range(0, 7):
-			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
-		self.textPix.update({'lieDown' : temp})
-
-		temp = []
-		for i in range(7, 13):
-			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
-		self.textPix.update({'getUp' : temp})
-
-#		temp = []
-#		for i in range(0, 10):
-#			temp.append(self.loadText(os.path.join('./img/fly', str(i) +'.txt')))
-#		self.textPix.update({'fly' : temp})
-
-		temp = []
-		for i in range(0, 18):
-			temp.append(self.loadText(os.path.join('./img/boop', str(i) +'.txt')))
-		self.textPix.update({'standBoop' : temp})
-
-	def loadText(self, path):
-		temp = []
-
-		f = open(path, encoding = 'utf-8')
-		for line in f:
-			temp.append(int(line))
-
-		return temp
 
 	'''事件处理'''
 	def mousePressEvent(self, event):		# 鼠标左键按下时, 打开对话框

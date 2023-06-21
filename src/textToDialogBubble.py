@@ -130,6 +130,11 @@ class textToDialogBubble_WithFadeOut(textToDialogBubble):
 			self.fadeOutAnimation.start()	# 开始动画
 			event.ignore()	# 忽略事件
 
+	def checkTimer(self):	# 对话框显示时间
+		if time.time() - self.startTime > cfg.displayTime:
+			self.timer.stop()	# 停止计时器, 防止反复调用
+			self.close()
+
 '''
 	def closeEvent(self, event):	# 意外发现的闪烁效果, 不过这样写窗口是彻底关不掉了
 		self.fadeOutAnimation = QPropertyAnimation(self, b"windowOpacity") # 设置动画对象
@@ -140,8 +145,3 @@ class textToDialogBubble_WithFadeOut(textToDialogBubble):
 		self.fadeOutAnimation.start()	# 开始动画
 		event.ignore()	# 忽略事件
 '''
-
-	def checkTimer(self):	# 对话框显示时间
-		if time.time() - self.startTime > cfg.displayTime:
-			self.timer.stop()	# 停止计时器, 防止反复调用
-			self.close()

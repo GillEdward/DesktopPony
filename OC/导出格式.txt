@@ -1,0 +1,2 @@
+导出倍率x4
+更多设置里勾选"Fixed image size"

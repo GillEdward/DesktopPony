@@ -116,42 +116,47 @@ class DesktopPet(QWidget):
 
 	'''载入资源'''
 	def loadImage(self):
-		self.pix.update({'stand' : QPixmap(os.path.join('./img/stand', str(0) + '.png'))})
+		self.pix.update({'stand' : QPixmap(os.path.join('./img/ponyAction/stand', str(0) + '.png'))})
 
 		temp = []
 		for i in range(0, 16):	# 动作帧数
-			temp.append(QPixmap(os.path.join('./img/trot', str(i) +'.png')))
+			temp.append(QPixmap(os.path.join('./img/ponyAction/trot', str(i) +'.png')))
 		self.pix.update({'trot' : temp})
 
 		temp = []
 		for i in range(0, 9):
-			temp.append(QPixmap(os.path.join('./img/sit', str(i) +'.png')))
+			temp.append(QPixmap(os.path.join('./img/ponyAction/sit', str(i) +'.png')))
 		self.pix.update({'sitDown' : temp})
 
 		temp = []
 		for i in range(9, 16):
-			temp.append(QPixmap(os.path.join('./img/sit', str(i) +'.png')))
+			temp.append(QPixmap(os.path.join('./img/ponyAction/sit', str(i) +'.png')))
 		self.pix.update({'standUp' : temp})
 
 		temp = []
 		for i in range(0, 7):
-			temp.append(QPixmap(os.path.join('./img/lie', str(i) +'.png')))
+			temp.append(QPixmap(os.path.join('./img/ponyAction/lie', str(i) +'.png')))
 		self.pix.update({'lieDown' : temp})
 
 		temp = []
 		for i in range(7, 13):
-			temp.append(QPixmap(os.path.join('./img/lie', str(i) +'.png')))
+			temp.append(QPixmap(os.path.join('./img/ponyAction/lie', str(i) +'.png')))
 		self.pix.update({'getUp' : temp})
 
-#		temp = []
-#		for i in range(0, 10):
-#			temp.append(QPixmap(os.path.join('./img/fly', str(i) +'.png')))
-#		self.pix.update({'fly' : temp})
+		temp = []
+		for i in range(0, 15):
+			temp.append(QPixmap(os.path.join('./img/ponyAction/boop', str(i) +'.png')))
+		self.pix.update({'standBoop' : temp})
 
 		temp = []
 		for i in range(0, 18):
-			temp.append(QPixmap(os.path.join('./img/boop', str(i) +'.png')))
-		self.pix.update({'standBoop' : temp})
+			temp.append(QPixmap(os.path.join('./img/ponyAction/boop-sit', str(i) +'.png')))
+		self.pix.update({'sitBoop' : temp})
+
+		temp = []
+		for i in range(0, 16):
+			temp.append(QPixmap(os.path.join('./img/ponyAction/boop-lie', str(i) +'.png')))
+		self.pix.update({'lieBoop' : temp})
 	''''''
 
 	'''状态机'''
@@ -162,6 +167,8 @@ class DesktopPet(QWidget):
 		self.standUpAction()
 		self.trotAction()
 		self.standBoopAction()
+		self.sitBoopAction()
+		self.lieBoopAction()
 
 	def standAction(self):
 		if not self.mirrored:
@@ -262,7 +269,31 @@ class DesktopPet(QWidget):
 			else:
 				self.actionPic = self.flipHorizontally(self.pix['standBoop'][self.picNum])
 			self.picNum += 1
-			if self.picNum > 17:
+			if self.picNum > 14:
+				self.running_action = ''
+				self.picNum = 0
+				self.is_running_action = False
+
+	def sitBoopAction(self):
+		if self.running_action == 'sitBoop':
+			if not self.mirrored:
+				self.actionPic = self.pix['sitBoop'][self.picNum]
+			else:
+				self.actionPic = self.flipHorizontally(self.pix['sitBoop'][self.picNum])
+			self.picNum += 1
+			if self.picNum > 16:
+				self.running_action = ''
+				self.picNum = 0
+				self.is_running_action = False
+
+	def lieBoopAction(self):
+		if self.running_action == 'lieBoop':
+			if not self.mirrored:
+				self.actionPic = self.pix['lieBoop'][self.picNum]
+			else:
+				self.actionPic = self.flipHorizontally(self.pix['lieBoop'][self.picNum])
+			self.picNum += 1
+			if self.picNum > 14:
 				self.running_action = ''
 				self.picNum = 0
 				self.is_running_action = False
@@ -304,18 +335,25 @@ class DesktopPet(QWidget):
 			self.menu[i].info.showBubble = True
 
 	def keyPressEvent(self, event):	# 按下键盘检测
-		if event.key() == Qt.Key_X and not self.is_running_action:	# 保证动作不会冲突
+		if event.key() == Qt.Key_X and not self.is_running_action:	# is_running_action 保证动作不会冲突
 			self.currentAction -= 1
-			if self.currentAction < -2:
+			if self.currentAction < -2:	# 防止越界
 				self.currentAction = -2
 		elif event.key() == Qt.Key_C and not self.is_running_action:
 			self.currentAction += 1
 			if self.currentAction > 1:
 				self.currentAction = 1
-		elif event.key() == Qt.Key_B and not self.is_running_action and self.actualAction == 0:
+		elif event.key() == Qt.Key_B and not self.is_running_action:
 			self.is_running_action = True
-			self.running_action = 'standBoop'
-			self.standBoopAction()
+			if self.actualAction == 0:
+				self.running_action = 'standBoop'
+				self.standBoopAction()
+			elif self.actualAction == -1:
+				self.running_action = 'sitBoop'
+				self.sitBoopAction()
+			elif self.actualAction == -2:
+				self.running_action = 'lieBoop'
+				self.lieBoopAction()
 		elif event.key() == Qt.Key_W:
 			self.direction |= 0b1000
 			self.running_action = 'trot'

@@ -8,41 +8,41 @@ class ponyPropertyPos():
 		self.loadPos()
 
 	def loadPos(self):	# 载入相对位移数据
-		self.textPix.update({'' : [self.loadText(os.path.join('./img/stand', str(0) + '.txt'))]})
+		self.textPix.update({'' : [self.loadText(os.path.join('./img/ponyAction/stand', str(0) + '.txt'))]})
 
 		temp = []
 		for i in range(0, 16):
-			temp.append(self.loadText(os.path.join('./img/trot', str(i) + '.txt')))
+			temp.append(self.loadText(os.path.join('./img/ponyAction/trot', str(i) + '.txt')))
 		self.textPix.update({'trot' : temp})
 
 		temp = []
 		for i in range(0, 9):
-			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
+			temp.append(self.loadText(os.path.join('./img/ponyAction/sit', str(i) +'.txt')))
 		self.textPix.update({'sitDown' : temp})
 
 		temp = []
 		for i in range(9, 16):
-			temp.append(self.loadText(os.path.join('./img/sit', str(i) +'.txt')))
+			temp.append(self.loadText(os.path.join('./img/ponyAction/sit', str(i) +'.txt')))
 		self.textPix.update({'standUp' : temp})
 
 		temp = []
 		for i in range(0, 7):
-			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
+			temp.append(self.loadText(os.path.join('./img/ponyAction/lie', str(i) +'.txt')))
 		self.textPix.update({'lieDown' : temp})
 
 		temp = []
 		for i in range(7, 13):
-			temp.append(self.loadText(os.path.join('./img/lie', str(i) +'.txt')))
+			temp.append(self.loadText(os.path.join('./img/ponyAction/lie', str(i) +'.txt')))
 		self.textPix.update({'getUp' : temp})
 
 #		temp = []
 #		for i in range(0, 10):
-#			temp.append(self.loadText(os.path.join('./img/fly', str(i) +'.txt')))
+#			temp.append(self.loadText(os.path.join('./img/ponyAction/fly', str(i) +'.txt')))
 #		self.textPix.update({'fly' : temp})
 
 		temp = []
-		for i in range(0, 18):
-			temp.append(self.loadText(os.path.join('./img/boop', str(i) +'.txt')))
+		for i in range(0, 15):
+			temp.append(self.loadText(os.path.join('./img/ponyAction/boop', str(i) +'.txt')))
 		self.textPix.update({'standBoop' : temp})
 
 	def loadText(self, path):
