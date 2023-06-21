@@ -1,5 +1,5 @@
 1.	安装 Python 3.8 或以上版本
-2.	执行 setup.bat 安装所需环境	(不知道写的对不对)
+2.	执行 setup.bat 安装所需环境	(已内置换源提速)
 
 执行 DesktopPet.py 打开小马桌宠
 或

@@ -1,1 +1,1 @@
-cmd /k "pip install -r requirements.txt"
+cmd /k "pip install -i http://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com -r requirements.txt"
