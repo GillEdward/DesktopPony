@@ -48,14 +48,14 @@ def clearFolder(path):  # 扫描文件夹，通过递归遍历
 			os.remove(os.path.join(path, filename))
 
 def clearUselessFiles(key, effectiveLength):
-	path_list = os.listdir(os.path.join('../img/ponyAction/', key))	# 对应目录内的文件表
+	path_list = os.listdir(os.path.join(action_folder_path, key))	# 对应目录内的文件表
 
 	path_list = [int(i[:-4]) for i in path_list]	# str'0.png' -> int'0', 便于接下来排序
 	path_list.sort()
 
 	for i in path_list[effectiveLength:]:	# 删除多余图片
-		os.remove(os.path.join('../img/ponyAction/', key, str(i) + '.png'))
-	shutil.copy(os.path.join('../img/ponyAction/', key, '0.png'), os.path.join('../img/ponyAction/', key, str(effectiveLength) + '.png'))	# 复制第一帧->最后一帧
+		os.remove(os.path.join(action_folder_path, key, str(i) + '.png'))
+	shutil.copy(os.path.join(action_folder_path, key, '0.png'), os.path.join(action_folder_path, key, str(effectiveLength) + '.png'))	# 复制第一帧->最后一帧
 
 '''run'''
 if __name__ == '__main__':
@@ -64,11 +64,12 @@ if __name__ == '__main__':
 	height = 360	# 可以写个自动化读取, Later~
 	offset = width
 
-	path = os.getcwd()  # 获得当前目录
-	path = path + '/input'
-	path_list = os.listdir(path)	# 当前目录内的文件表
+	current_file_path = os.path.dirname(os.path.realpath(__file__)) # 获取当前文件所在目录
+	input_folder_path = os.path.join(current_file_path, 'input')  # 获得input文件夹目录
+	path_list = os.listdir(input_folder_path)	# 当前目录内的文件表
+	action_folder_path = os.path.join(current_file_path, '../img/ponyAction/') # 获得ponyAction文件夹目录
 
-	clearFolder('../img/ponyAction/')	# 清除老文件
+	clearFolder(action_folder_path)	# 清除老文件
 
 	actionNames = ['stand', 'trot', 'boop', 'sit', 'boop-sit', 'lie', 'boop-lie', 'fly', 'boop-fly']
 
@@ -79,11 +80,11 @@ if __name__ == '__main__':
 				if filename.find(action) != -1 and len(action) > len(longestKey):
 					longestKey = action
 
-			shutil.move(os.path.join(path + '/' + filename), os.path.join(path + '/' + longestKey + '.png'))	# 根据动作重命名
+			shutil.move(os.path.join(input_folder_path + '/' + filename), os.path.join(input_folder_path + '/' + longestKey + '.png'))	# 根据动作重命名
 
 	for filename in path_list:
 		if os.path.splitext(filename)[1] == '.png':  # 打开.png文件
-			img = cv2.imread('./input/' + filename, -1)
+			img = cv2.imread(os.path.join(input_folder_path, filename), -1)
 			imgHeight = img.shape[0]
 			imgWidth = img.shape[1]
 
@@ -94,7 +95,7 @@ if __name__ == '__main__':
 
 				#								放大倍率(x,y), 插值方式:基于局部像素的重采样
 				#img_ = cv2.resize(img_, None, img_, 4, 4, cv2.INTER_AREA)	# PT官方导出有倍率放大功能了, 所以禁用该功能
-				save_path_file = os.path.join('../img/ponyAction/' + filename[:-4], str(i) + '.png')
+				save_path_file = os.path.join(os.path.join(action_folder_path, filename[:-4]), str(i) + '.png')
 				cv2.imwrite(save_path_file, img_)
 
 	# 截取有效帧并重新排序
@@ -106,44 +107,39 @@ if __name__ == '__main__':
 	None
 
 	# boop
+	boop_path = os.path.join(action_folder_path, 'boop')
 	for i in range(0, 7):	# 倒放
-		shutil.copy('../img/ponyAction/boop/' + str(i) + '.png', '../img/ponyAction/boop/' + str(14 - i) + '.png')
+		shutil.copy(os.path.join(boop_path, str(i) + '.png'), os.path.join(boop_path, str(14 - i) + '.png'))
 	clearUselessFiles('boop', 14)
 
 	# sit
-	shutil.move('../img/ponyAction/sit/16.png', '../img/ponyAction/sit/0.png')
-	shutil.move('../img/ponyAction/sit/17.png', '../img/ponyAction/sit/1.png')
-	shutil.move('../img/ponyAction/sit/19.png', '../img/ponyAction/sit/2.png')
-	shutil.move('../img/ponyAction/sit/21.png', '../img/ponyAction/sit/3.png')
-	shutil.move('../img/ponyAction/sit/22.png', '../img/ponyAction/sit/4.png')
-	shutil.move('../img/ponyAction/sit/23.png', '../img/ponyAction/sit/5.png')
-	shutil.move('../img/ponyAction/sit/24.png', '../img/ponyAction/sit/6.png')
-	shutil.move('../img/ponyAction/sit/25.png', '../img/ponyAction/sit/7.png')
-	shutil.move('../img/ponyAction/sit/26.png', '../img/ponyAction/sit/8.png')
+	sit_path = os.path.join(action_folder_path, 'sit')
+	sit_index = [16, 17, 19, 21, 22, 23, 24, 25, 26] # 抽去18和20帧
+	for i in range(0, 9):
+		shutil.move(os.path.join(sit_path, str(sit_index[i]) + '.png'), os.path.join(sit_path, str(i) + '.png'))
 	for i in range(0, 8):	# 倒放
-		shutil.copy('../img/ponyAction/sit/' + str(i) + '.png', '../img/ponyAction/sit/' + str(16 - i) + '.png')
+		shutil.copy(os.path.join(sit_path, str(i) + '.png'), os.path.join(sit_path, str(16 - i) + '.png'))
 	clearUselessFiles('sit', 16)
 
 	# boop-sit
+	boop_sit_path = os.path.join(action_folder_path, 'boop-sit')
 	for i in range(0, 8):
-		shutil.copy('../img/ponyAction/boop-sit/' + str(i) + '.png', '../img/ponyAction/boop-sit/' + str(16 - i) + '.png')
+		shutil.copy(os.path.join(boop_sit_path, str(i) + '.png'), os.path.join(boop_sit_path, str(16 - i) + '.png'))
 	clearUselessFiles('boop-sit', 16)
 
 	# lie
-	shutil.move('../img/ponyAction/lie/24.png', '../img/ponyAction/lie/0.png')
-	shutil.move('../img/ponyAction/lie/25.png', '../img/ponyAction/lie/1.png')
-	shutil.move('../img/ponyAction/lie/26.png', '../img/ponyAction/lie/2.png')
-	shutil.move('../img/ponyAction/lie/27.png', '../img/ponyAction/lie/3.png')
-	shutil.move('../img/ponyAction/lie/28.png', '../img/ponyAction/lie/4.png')
-	shutil.move('../img/ponyAction/lie/29.png', '../img/ponyAction/lie/5.png')
-	shutil.move('../img/ponyAction/lie/31.png', '../img/ponyAction/lie/6.png')
+	lie_path = os.path.join(action_folder_path, 'lie')
+	lie_index = [24, 25, 26, 27, 28, 29, 31] # 抽去30帧
+	for i in range(0, 7):
+		shutil.move(os.path.join(lie_path, str(lie_index[i]) + '.png'), os.path.join(lie_path, str(i) + '.png'))
 	for i in range(0, 6):
-		shutil.copy('../img/ponyAction/lie/' + str(i) + '.png', '../img/ponyAction/lie/' + str(12 - i) + '.png')
+		shutil.copy(os.path.join(lie_path, str(i) + '.png'), os.path.join(lie_path, str(12 - i) + '.png'))
 	clearUselessFiles('lie', 12)
 
 	# boop-lie
+	boop_lie_path = os.path.join(action_folder_path, 'boop-lie')
 	for i in range(0, 7):	# 倒放
-		shutil.copy('../img/ponyAction/boop-lie/' + str(i) + '.png', '../img/ponyAction/boop-lie/' + str(14 - i) + '.png')
+		shutil.copy(os.path.join(boop_lie_path, str(i) + '.png'), os.path.join(boop_lie_path, str(14 - i) + '.png'))
 	clearUselessFiles('boop-lie', 14)
 
 	# fly
@@ -153,4 +149,4 @@ if __name__ == '__main__':
 	clearUselessFiles('boop-fly', 12)
 
 	# 生成位置文件
-	scanThisDir('../img/ponyAction')   #从当前目录开始扫描
+	scanThisDir(action_folder_path)   #从当前目录开始扫描
