@@ -38,12 +38,12 @@ def scanThisDir(path):  # 扫描文件夹，通过递归遍历
         if os.path.splitext(filename)[1] == '.png':  #打开.png文件
             scanFile(filesrc)
 
-def clearFolder(path):  # 扫描文件夹，通过递归遍历
+def cleanFolder(path):  # 扫描文件夹，通过递归遍历
 	path_list = os.listdir(path)
 	for filename in path_list:
 		filesrc = os.path.join(path, filename)
 		if os.path.isdir(filesrc):  # 打开文件夹，下一层递归
-			clearFolder(filesrc)
+			cleanFolder(filesrc)
 		if os.path.splitext(filename)[1] == '.txt' or os.path.splitext(filename)[1] == '.png':  # 删除老的.txt和.png文件
 			os.remove(os.path.join(path, filename))
 
@@ -60,29 +60,28 @@ def clearUselessFiles(key, effectiveLength):
 '''run'''
 if __name__ == '__main__':
 	# 截取素材
-	width = 320	# 尺寸等于单独导出一张stand的图片大小
-	height = 360	# 可以写个自动化读取, Later~
-	offset = width
-
 	current_file_path = os.path.dirname(os.path.realpath(__file__)) # 获取当前文件所在目录
 	input_folder_path = os.path.join(current_file_path, 'input')  # 获得input文件夹目录
-	path_list = os.listdir(input_folder_path)	# 当前目录内的文件表
+	input_list = os.listdir(input_folder_path)	# 当前目录内的文件表
 	action_folder_path = os.path.join(current_file_path, '../img/ponyAction/') # 获得ponyAction文件夹目录
 
-	clearFolder(action_folder_path)	# 清除老文件
+	height, width = cv2.imread(os.path.join(input_folder_path, 'stand.png')).shape[:2] 	# 尺寸等于单独导出一张stand的图片大小
+	offset = width
+
+	cleanFolder(action_folder_path)	# 清除老文件
 
 	actionNames = ['stand', 'trot', 'boop', 'sit', 'boop-sit', 'lie', 'boop-lie', 'fly', 'boop-fly']
 
-	for filename in path_list:	# 截去多余部分(OpenCV2不认识中文qwq)
+	for filename in input_list:	# 截去多余部分(OpenCV2不认识中文qwq)
 		if os.path.splitext(filename)[1] == '.png':
 			longestKey = ''	# 符合条件的最长关键词,
 			for action in actionNames:	# 遍历动作集
 				if filename.find(action) != -1 and len(action) > len(longestKey):
 					longestKey = action
 
-			shutil.move(os.path.join(input_folder_path + '/' + filename), os.path.join(input_folder_path + '/' + longestKey + '.png'))	# 根据动作重命名
+			shutil.move(os.path.join(input_folder_path, filename), os.path.join(input_folder_path, longestKey + '.png'))	# 根据动作重命名
 
-	for filename in path_list:
+	for filename in input_list:
 		if os.path.splitext(filename)[1] == '.png':  # 打开.png文件
 			img = cv2.imread(os.path.join(input_folder_path, filename), -1)
 			imgHeight = img.shape[0]
@@ -95,6 +94,7 @@ if __name__ == '__main__':
 
 				#								放大倍率(x,y), 插值方式:基于局部像素的重采样
 				#img_ = cv2.resize(img_, None, img_, 4, 4, cv2.INTER_AREA)	# PT官方导出有倍率放大功能了, 所以禁用该功能
+				# 考虑一下加个判断？如果图片太小就重采样放大
 				save_path_file = os.path.join(os.path.join(action_folder_path, filename[:-4]), str(i) + '.png')
 				cv2.imwrite(save_path_file, img_)
 
