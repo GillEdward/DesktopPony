@@ -1,6 +1,8 @@
 import multiprocessing
 import os
 
+from src.utils import txt_init
+
 #  根据需要填写需要运行的命令
 def clearUp():
 	open('./temp/headBubble.txt', 'w', encoding = 'utf-8').write('')
@@ -19,6 +21,8 @@ def bubbleDialogForPony():
     os.system('python ./bubbleDialogForPony.py')
 
 if __name__ == '__main__': 
+    txt_init()
+    
     p0 = multiprocessing.Process(target=clearUp)
     p1 = multiprocessing.Process(target=readingDM)
     p2 = multiprocessing.Process(target=liveSprite)
