@@ -13,6 +13,8 @@ from src.trayIcon import *
 from src.bubbleBoxex import *
 from src.dialogBoxes import *
 
+from src.utils import txt_init
+
 '''桌面宠物'''
 class DesktopPet(QWidget):
 	'小马桌宠类'
@@ -490,10 +492,13 @@ class DesktopPet(QWidget):
 	def ponyPosWriteIntoFile(self):	# 将小马位置信息写入文件
 		open('./temp/ponyPos.txt', 'w', encoding = 'utf-8').write(
 			f'{self.posX}\n{self.posY}\n{self.running_action}\n{self.actualAction}\n{self.mirrored}\n{self.picNum}')
+	
 	''''''
+
 
 '''run'''
 if __name__ == '__main__':
+	txt_init()
 	app = QApplication(sys.argv)
 	pet = DesktopPet()
 	sys.exit(app.exec_())
